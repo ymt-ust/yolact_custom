@@ -167,6 +167,7 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
 
     # Quick and dirty lambda for selecting the color for a particular index
     # Also keeps track of a per-gpu color cache for maximum speed
+    '''
     def get_color(j, on_gpu=None):
         global color_cache
         color_idx = (classes[j] * 5 if class_color else j * 5) % len(COLORS)
@@ -182,6 +183,9 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
                 color = torch.Tensor(color).to(on_gpu).float() / 255.
                 color_cache[on_gpu][color_idx] = color
             return color
+    '''
+    def get_color(j, on_gpu=None):
+        return (1.0,1.0,1.0) # regardless of anything just return white
 
     # First, draw the masks on the GPU where we can do it really fast
     # Beware: very fast but possibly unintelligible mask-drawing code ahead
