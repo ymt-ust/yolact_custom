@@ -195,18 +195,21 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
         masks_color = masks.repeat(1, 1, 1, 3) * colors * 1
 
         # This is 1 everywhere except for 1-mask_alpha where the mask is
-        inv_alph_masks = masks * (0)
+        # inv_alph_masks = masks * (0)
         
         # I did the math for this on pen and paper. This whole block should be equivalent to:
         #    for j in range(num_dets_to_consider):
         #        img_gpu = img_gpu * inv_alph_masks[j] + masks_color[j]
         masks_color_summand = masks_color[0]
         if num_dets_to_consider > 1:
-            inv_alph_cumul = inv_alph_masks[:(num_dets_to_consider-1)].cumprod(dim=0)
-            masks_color_cumul = masks_color[1:] * inv_alph_cumul
+            #inv_alph_cumul = inv_alph_masks[:(num_dets_to_consider-1)].cumprod(dim=0)
+            #masks_color_cumul = masks_color[1:] * inv_alph_cumul
+            #masks_color_summand += masks_color_cumul.sum(dim=0)
+            masks_color_cumul = masks_color[1:]
             masks_color_summand += masks_color_cumul.sum(dim=0)
 
-        img_gpu = img_gpu * inv_alph_masks.prod(dim=0) + masks_color_summand
+        #img_gpu = img_gpu * inv_alph_masks.prod(dim=0) + masks_color_summand
+        img_gpu = torch.clamp(masks_color_summand, 0, 1)
     
     if args.display_fps:
             # Draw the box for the fps on the GPU
